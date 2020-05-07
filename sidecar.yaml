@@ -1,0 +1,79 @@
+kind:       ConfigMap
+apiVersion: v1
+metadata:
+  name:     my-app-inputs
+data:
+  inputs.conf: |
+    [monitor:///logs/myapp.log]
+    blacklist = \.(gz|zip|bkz|arch|etc)$
+    ignoreOlderThan = 3d
+    index = k8s_cluster
+    sourcetype = k8s_sourcetype
+---
+
+kind:        Deployment
+apiVersion:  extensions/v1beta1
+metadata:
+    name: sidecar-testing
+spec:
+  template:
+    metadata:
+      labels:
+        app:           "my_awesome_app_on_kube"
+        my_custom_key: "my_custom_value"
+    spec:
+      containers:
+        - name: logger
+          image: busybox
+          args:
+          - /bin/sh
+          - -c
+          - >
+            while true;
+            do
+              echo "$(date)\n" >> /logs/myapp.log;
+            done
+          volumeMounts:
+          # mount your log-file volume
+          - name:      my-app-logs
+            mountPath: "/logs"
+        - name: splunkforwarder
+          image: docker.apple.com/splunk-ist/splunk-universalforwarder:latest
+          env:
+            - name: SPLUNK_CLUSTER
+              value: "splunk-ist-test.rno.apple.com"
+          resources:
+            requests:
+              cpu:    200m
+              memory: 1Gi
+            limits:
+              cpu:    1
+              memory: 1Gi
+          volumeMounts:
+          - name:      splunkforwarder-config
+            mountPath: "/etc/splunk/custom_inputs/app1"
+            readOnly:  true
+          - name:      my-app-logs
+            mountPath: "/logs"
+          - name:      splunkforwarder-temp
+            mountPath: "/opt/splunk/var"
+          - name:      podinfo
+            mountPath: "/etc/splunk/podinfo"
+            readOnly:  true
+      volumes:
+      - name:     my-app-logs
+        emptyDir: {}
+      - name:     splunkforwarder-temp
+        emptyDir: {}
+      - name:      splunkforwarder-config
+        configMap:
+          name:    my-app-inputs
+      - name:              podinfo
+        downwardAPI:
+          items:
+            - path:        "labels"
+              fieldRef:
+                fieldPath: metadata.labels
+            - path:        "uid"
+              fieldRef:
+                fieldPath: metadata.uid
