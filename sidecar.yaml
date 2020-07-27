@@ -7,8 +7,8 @@ data:
     [monitor:///logs/myapp.log]
     blacklist = \.(gz|zip|bkz|arch|etc)$
     ignoreOlderThan = 3d
-    index = k8s_cluster
-    sourcetype = k8s_sourcetype
+    index = INDEX_NAME
+    sourcetype = SOUECETYPE_NAME
 ---
 
 kind:        Deployment
