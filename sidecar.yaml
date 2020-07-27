@@ -38,7 +38,7 @@ spec:
           - name:      my-app-logs
             mountPath: "/logs"
         - name: splunkforwarder
-          image: splunk-universalforwarder:latest
+          image: splunkforwarder:latest
           env:
             - name: SPLUNK_CLUSTER
               value: "splunk-cluster.com"
