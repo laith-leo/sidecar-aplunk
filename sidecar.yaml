@@ -7,8 +7,8 @@ data:
     [monitor:///logs/myapp.log]
     blacklist = \.(gz|zip|bkz|arch|etc)$
     ignoreOlderThan = 3d
-    index = k8s_cluster
-    sourcetype = k8s_sourcetype
+    index = INDEX_NAME
+    sourcetype = SOUECETYPE_NAME
 ---
 
 kind:        Deployment
@@ -38,10 +38,10 @@ spec:
           - name:      my-app-logs
             mountPath: "/logs"
         - name: splunkforwarder
-          image: docker.apple.com/splunk-ist/splunk-universalforwarder:latest
+          image: splunk-universalforwarder:latest
           env:
             - name: SPLUNK_CLUSTER
-              value: "splunk-ist-test.rno.apple.com"
+              value: "splunk-cluster.com"
           resources:
             requests:
               cpu:    200m
