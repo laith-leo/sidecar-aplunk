@@ -38,10 +38,10 @@ spec:
           - name:      my-app-logs
             mountPath: "/logs"
         - name: splunkforwarder
-          image: docker.apple.com/splunk-ist/splunk-universalforwarder:latest
+          image: splunk-universalforwarder:latest
           env:
             - name: SPLUNK_CLUSTER
-              value: "splunk-ist-test.rno.apple.com"
+              value: "splunk-cluster.com"
           resources:
             requests:
               cpu:    200m
